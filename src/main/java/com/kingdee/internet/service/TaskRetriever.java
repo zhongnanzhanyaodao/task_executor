@@ -2,11 +2,9 @@ package com.kingdee.internet.service;
 
 import com.alibaba.fastjson.JSON;
 import com.kingdee.internet.entity.Task;
-import com.kingdee.internet.util.ApplicationContextHolder;
 import com.kingdee.internet.util.ConfigUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
-import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +14,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+
+import static com.kingdee.internet.util.ApplicationContextHolder.applicationContext;
 
 @Component
 public class TaskRetriever {
@@ -43,6 +43,7 @@ public class TaskRetriever {
                 if (StringUtils.isNotBlank(response)) {
                     logger.debug("task retrieved: {}", response);
                     Task task = JSON.parseObject(response, Task.class);
+                    taskExecutor.execute((Runnable) applicationContext().getBean(task.getBankType(), task));
                 }
             } catch (IOException e) {
                 logger.error("retrieve task failed.", e);

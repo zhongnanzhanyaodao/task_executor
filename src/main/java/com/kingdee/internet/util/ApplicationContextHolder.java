@@ -25,6 +25,11 @@ public class ApplicationContextHolder implements ApplicationContextAware {
         return applicationContext.getBean(name, requiredType);
     }
 
+    public static ApplicationContext applicationContext() {
+        checkNotNull();
+        return applicationContext;
+    }
+
     public static void checkNotNull() {
         Assert.notNull(applicationContext, "application context not been initialized.");
     }
