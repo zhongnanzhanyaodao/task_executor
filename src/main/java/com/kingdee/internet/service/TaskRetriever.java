@@ -43,7 +43,6 @@ public class TaskRetriever {
                 if (StringUtils.isNotBlank(response)) {
                     logger.debug("task retrieved: {}", response);
                     Task task = JSON.parseObject(response, Task.class);
-                    WebDriver webDriver = ApplicationContextHolder.getBean("ieWebDriver", WebDriver.class);
                 }
             } catch (IOException e) {
                 logger.error("retrieve task failed.", e);
