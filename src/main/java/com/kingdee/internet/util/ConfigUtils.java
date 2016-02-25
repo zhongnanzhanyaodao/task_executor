@@ -12,11 +12,25 @@ public class ConfigUtils {
     @Value("${aes.iv}")
     private String aesIV;
 
+    @Value("${task.retrieve.api}")
+    private String taskRetrieveApi;
+
+    @Value("${task.pool.size}")
+    private int taskPoolSize;
+
     public byte[] aesKey() {
         return Encodes.decodeBase64(aesKey);
     }
 
     public byte[] aesIV() {
         return Encodes.decodeBase64(aesIV);
+    }
+
+    public String taskRetrieveApi() {
+        return taskRetrieveApi;
+    }
+
+    public int taskPoolSize() {
+        return taskPoolSize;
     }
 }
