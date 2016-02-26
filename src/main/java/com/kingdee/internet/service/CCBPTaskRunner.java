@@ -2,7 +2,12 @@ package com.kingdee.internet.service;
 
 import com.kingdee.internet.entity.Task;
 import com.kingdee.internet.security.Encodes;
+import com.kingdee.internet.security.Exceptions;
+import org.apache.http.client.CookieStore;
+import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.cookie.BasicClientCookie;
 import org.openqa.selenium.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -66,6 +73,19 @@ public class CCBPTaskRunner extends AbstractTaskRunner {
     @Override
     public void fetchData() {
         Set<Cookie> cookies = webDriver.manage().getCookies();
+        CookieStore cookieStore = new BasicCookieStore();
+        for(Cookie cookie : cookies) {
+            cookieStore.addCookie(new BasicClientCookie(cookie.getName(), cookie.getValue()));
+        }
+        try {
+            Executor.newInstance()
+                    .use(cookieStore)
+                    .execute(Request.Get("url"))
+                    .saveContent(new File("path"));
+        } catch (IOException e) {
+            logger.error("failed to download file.");
+            throw Exceptions.unchecked(e);
+        }
     }
 
     @Override
