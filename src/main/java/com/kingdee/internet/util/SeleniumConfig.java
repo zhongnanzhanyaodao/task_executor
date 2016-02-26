@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 
 import java.io.File;
+import java.util.concurrent.Semaphore;
 
 @Configuration
 public class SeleniumConfig {
@@ -65,5 +66,10 @@ public class SeleniumConfig {
     @DependsOn("systemPrereqs")
     public WebDriver ieWebDriver() {
         return new InternetExplorerDriver();
+    }
+
+    @Bean(name = "taskSemaphore")
+    public Semaphore taskSemaphore(@Value("${task.pool.size}") int taskPoolSize) {
+        return new Semaphore(taskPoolSize);
     }
 }

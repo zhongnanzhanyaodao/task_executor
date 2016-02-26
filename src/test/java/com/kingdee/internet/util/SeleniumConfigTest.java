@@ -1,6 +1,7 @@
 package com.kingdee.internet.util;
 
 import com.kingdee.internet.captcha.CaptchaRecognition;
+import com.kingdee.internet.security.Cryptos;
 import com.kingdee.internet.security.Encodes;
 import org.apache.http.client.fluent.Request;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @ContextConfiguration(locations = {
@@ -60,7 +62,8 @@ public class SeleniumConfigTest extends AbstractJUnit4SpringContextTests {
 
     @Test
     public void testDecrypt() {
-        String source = "9eegA8GcpgK1EpAnnSYcBA==";
+        String source = Encodes.encodeBase64(Cryptos.aesEncrypt("pfx147258".getBytes(), configUtils.aesKey(), configUtils.aesIV(), 16));
+        logger.info(source);
         logger.info(CommonUtils.aesDecrypt(source, configUtils, 16));
     }
 }

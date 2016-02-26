@@ -97,6 +97,19 @@ public class Cryptos {
     }
 
     /**
+     * 使用AES加密原始字符串.
+     *
+     * @param input 原始输入字符数组
+     * @param key 符合AES要求的密钥
+     * @param iv 初始向量
+     */
+    public static byte[] aesEncrypt(byte[] input, byte[] key, byte[] iv, int keyLength) {
+        int len = key.length;
+        if(len > keyLength) len = keyLength;
+        return aes(input, Arrays.copyOf(key, len), iv, Cipher.ENCRYPT_MODE);
+    }
+
+    /**
      * 使用AES解密字符串, 返回原始字符串.
      *
      * @param input Hex编码的加密字符串

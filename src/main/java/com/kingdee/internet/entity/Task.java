@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.Map;
 
 @Entity
-@Table(name = "t_bd_sync_task")
+@Table(name = "T_BD_SYNC_TASK")
 @Message
 public class Task {
     @Id

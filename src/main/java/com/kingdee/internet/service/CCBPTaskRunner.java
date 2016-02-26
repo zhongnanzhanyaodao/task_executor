@@ -1,94 +1,79 @@
 package com.kingdee.internet.service;
 
-import com.kingdee.internet.captcha.CaptchaRecognition;
 import com.kingdee.internet.entity.Task;
 import com.kingdee.internet.security.Encodes;
-import com.kingdee.internet.util.ApplicationContextHolder;
-import com.kingdee.internet.util.CommonUtils;
-import com.kingdee.internet.util.ConfigUtils;
 import org.apache.http.client.fluent.Request;
 import org.openqa.selenium.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 中国建设银行-个人 登陆、数据抓取、数据保存处理
+ */
 @Component("ccb_p")
 @Scope("prototype")
 public class CCBPTaskRunner extends AbstractTaskRunner {
     public static final Logger logger = LoggerFactory.getLogger(CCBPTaskRunner.class);
 
-    private State state;
+    @Value("${ccbp.login.url}")
+    private String url;
 
     public CCBPTaskRunner(Task task) {
         super(task);
-        this.state = States.LOGIN;
     }
 
     @Override
-    public void run() {
-        while (state.process(this));
-    }
-
-    @Override
-    public State state() {
-        return state;
-    }
-
-    @Override
-    public void state(State state) {
-        this.state = state;
-    }
-
-    enum States implements State {
-        INIT { // 初始化运行环境
-            @Override
-            public boolean process(Context context) {
-                task = context.task();
-                task.setPasswd(CommonUtils.aesDecrypt(task.getPasswd(), configUtils, 16));
-                webDriver = context.webDriver();
-                context.state(LOGIN);
-                return true;
+    public void login() {
+        logger.info("---------------- begin to process {} login", task.getBankType());
+        webDriver.get(url);
+        webDriver.switchTo().frame("fclogin");
+        webDriver.findElement(By.id("USERID")).sendKeys(task.getCardNum());
+        webDriver.findElement(By.id("LOGPASS")).sendKeys(task.getPasswd());
+        updateProgress(0.5d); // 设置登陆进度为50%
+        boolean bypass = false;
+        do {
+            try {
+                WebElement imgElem;
+                try {
+                    imgElem = webDriver.findElement(By.id("fujiama"));
+                } catch (NoSuchElementException e) {
+                    logger.debug("no need to input captcha.");
+                    break;
+                }
+                String imgBase64 = Encodes.encodeBase64(Request.Get(imgElem.getAttribute("src")).execute().returnContent().asBytes());
+                String captcha = captchaRecognition.recognition(imgBase64, 5);
+                webDriver.findElement(By.id("PT_CONFIRM_PWD")).clear();
+                webDriver.findElement(By.id("PT_CONFIRM_PWD")).sendKeys(captcha);
+                TimeUnit.SECONDS.sleep(1);
+                webDriver.findElement(By.id("fujiamacorrect"));
+                bypass = true;
+            } catch (Exception e) {
+                logger.warn("cannot find correct element.");
+                webDriver.findElement(By.id("getyan")).click();
             }
-        }, LOGIN { // 登陆
-            @Override
-            public boolean process(Context context) {
-                webDriver.get("https://ibsbjstar.ccb.com.cn/app/V6/CN/STY1/login.jsp");
-                webDriver.switchTo().frame("fclogin");
-                webDriver.findElement(By.id("USERID")).sendKeys("kdpfx");
-                webDriver.findElement(By.id("LOGPASS")).sendKeys("pfx147258");
-                boolean bypass = false;
-                do {
-                    try {
-                        WebElement imgElem;
-                        try {
-                            imgElem = webDriver.findElement(By.id("fujiama"));
-                        } catch (NoSuchElementException e) {
-                            logger.debug("no need to input captcha.");
-                            break;
-                        }
-                        String imgBase64 = Encodes.encodeBase64(Request.Get(imgElem.getAttribute("src")).execute().returnContent().asBytes());
-                        String captcha = captchaRecognition.recognition(imgBase64, 5);
-                        webDriver.findElement(By.id("PT_CONFIRM_PWD")).clear();
-                        webDriver.findElement(By.id("PT_CONFIRM_PWD")).sendKeys(captcha);
-                        TimeUnit.SECONDS.sleep(1);
-                        webDriver.findElement(By.id("fujiamacorrect"));
-                        bypass = true;
-                    } catch (Exception e) {
-                        logger.warn("cannot find correct element.");
-                        webDriver.findElement(By.id("getyan")).click();
-                    }
-                } while (!bypass);
-                webDriver.findElement(By.id("loginButton")).sendKeys(Keys.ENTER);
-                return true;
-            }
-        };
+        } while (!bypass);
+        webDriver.findElement(By.id("loginButton")).sendKeys(Keys.ENTER);
+        updateProgress(1.0d); // 设置登陆进度为100%
+        logger.info("---------------- {} login finished", task.getBankType());
+    }
 
-        static final ConfigUtils configUtils = ApplicationContextHolder.getBean(ConfigUtils.class);
-        static final CaptchaRecognition captchaRecognition = ApplicationContextHolder.getBean(CaptchaRecognition.class);
-        static WebDriver webDriver;
-        static Task task;
+    @Override
+    public void fetchData() {
+        Set<Cookie> cookies = webDriver.manage().getCookies();
+    }
+
+    @Override
+    public void saveData() {
+        try {
+            TimeUnit.MINUTES.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
