@@ -10,6 +10,8 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.openqa.selenium.*;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 中国建设银行-个人 登陆、数据抓取、数据保存处理
+ *
+ * {     "cardNum": "kdpfx",     "params": {         "respData": {             "bankLoginNo": "kdpfx",             "bankType": "ccb_p",             "bankPassword": "sMvpnaEMqchq0Qg+nUdbwQ==",             "startDate": "20150901",             "userId": "188888",             "isUpdate": "no",             "isAgreeProtocol": "yes"         }     },     "passwd": "sMvpnaEMqchq0Qg+nUdbwQ==",     "bankType": "ccb_p",     "userId": "188888" }
  */
 @Component("ccbpTaskRunner")
 @Scope("prototype")
@@ -76,6 +80,10 @@ public class CCBPTaskRunner extends AbstractTaskRunner {
         jsExector.executeScript("_X.setParams('" +
                 CommonUtils.map2urlParams(task.getParams().get("respData")) + "')");
         jsExector.executeScript(CommonUtils.getClassPathFileContent("js/ccb-p.js"));
+
+        By frameSearch = By.xpath("//iframe[starts-with(@src,'about:blank?id=')]");
+        WebDriverWait wait = new WebDriverWait(webDriver, 20);
+        wait.until(ExpectedConditions.presenceOfElementLocated(frameSearch));
 
         Set<Cookie> cookies = webDriver.manage().getCookies();
         CookieStore cookieStore = new BasicCookieStore();
