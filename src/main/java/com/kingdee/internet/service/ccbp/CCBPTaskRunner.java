@@ -1,8 +1,9 @@
-package com.kingdee.internet.service;
+package com.kingdee.internet.service.ccbp;
 
 import com.kingdee.internet.entity.Task;
 import com.kingdee.internet.security.Encodes;
 import com.kingdee.internet.security.Exceptions;
+import com.kingdee.internet.service.AbstractTaskRunner;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 中国建设银行-个人 登陆、数据抓取、数据保存处理
  */
-@Component("ccb_p")
+@Component("ccbpTaskRunner")
 @Scope("prototype")
 public class CCBPTaskRunner extends AbstractTaskRunner {
     public static final Logger logger = LoggerFactory.getLogger(CCBPTaskRunner.class);
