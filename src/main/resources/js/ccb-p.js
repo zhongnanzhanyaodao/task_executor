@@ -3,6 +3,8 @@
  * @author Jony Zhang
  * @required bridge.js
  */
+var callbackJava = arguments[arguments.length - 1];
+
 (function(){
     var _X = top._X || {};
     var mainFrame = $('iframe[src*="TXCODE=N31010"]').get(0);
@@ -36,7 +38,7 @@
         _X.log('[totle]: ' + (start.endTime - start.startTime) / 1000 + 's');
 
         _X.log(listData);
-        _X.post(listData);
+        callbackJava(JSON.stringify(listData));
         Q.done();
     }
 
