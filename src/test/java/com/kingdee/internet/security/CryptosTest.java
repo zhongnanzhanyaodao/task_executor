@@ -1,5 +1,6 @@
 package com.kingdee.internet.security;
 
+import com.kingdee.internet.util.CommonUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,12 @@ public class CryptosTest {
 
         logger.info(Encodes.encodeBase64(iv.getBytes(Charset.forName("utf-8"))));
         logger.info(Encodes.encodeBase64(password.getBytes(Charset.forName("utf-8"))));
+
+        String source = Encodes.encodeBase64(Cryptos.aesEncrypt("pfx147258".getBytes(),
+                Encodes.decodeBase64("YWYyNTQxNGVhN2VmNjE2Z2hjZTJiZjBiYzgxMTg5NWM="),
+                Encodes.decodeBase64("d21LV3ZEQUtQUFpjRGdOaA=="),
+                16));
+        logger.info(source);
     }
 
     @Test

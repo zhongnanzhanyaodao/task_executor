@@ -14,7 +14,7 @@ import java.util.Date;
  * @Author Yondy Zhou
  * @Since 2016/01/07
  */
-abstract public class AbstractBankData<B extends AbstractBankData.Builder> {
+abstract public class TxnDetail<B extends TxnDetail.Builder> {
     protected String id; // 主键
     protected String accountNo; // 账号
     protected String currency; // 交易币种
@@ -30,9 +30,9 @@ abstract public class AbstractBankData<B extends AbstractBankData.Builder> {
     protected String digest; // 摘要
     protected String otherBankName; // 对账
 
-    public AbstractBankData() {  }
+    public TxnDetail() {  }
 
-    protected AbstractBankData(B builder) {
+    protected TxnDetail(B builder) {
         this.id = builder.id;
         this.accountNo = builder.accountNo;
         this.currency = builder.currency;
@@ -161,7 +161,7 @@ abstract public class AbstractBankData<B extends AbstractBankData.Builder> {
         this.otherBankName = otherBankName;
     }
 
-    public abstract static class Builder<T extends AbstractBankData,
+    public abstract static class Builder<T extends TxnDetail,
             B extends Builder<T, B>> implements IBuilder<T> {
         private static final Logger logger = LoggerFactory.getLogger(Builder.class);
 

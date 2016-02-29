@@ -40,35 +40,4 @@
 
     <context:component-scan base-package="com.kingdee.internet" />
 
-    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
-        <property name="url" value="${jdbc.url}" />
-        <property name="username" value="${jdbc.username}" />
-        <property name="password" value="${jdbc.password}" />
-        <property name="initialSize" value="${jdbc.initialSize}" />
-        <property name="maxActive" value="${jdbc.maxActive}" />
-        <property name="maxWait" value="${jdbc.maxWait}" />
-        <property name="validationQuery" value="select 1 from dual" />
-        <property name="filters" value="config" />
-        <property name="connectionProperties" value="config.decrypt=true" />
-    </bean>
-
-    <bean id="hibernateJpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-        <property name="databasePlatform" value="org.hibernate.dialect.Oracle10gDialect" />
-    </bean>
-
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="dataSource" ref="dataSource" />
-        <property name="jpaVendorAdapter" ref="hibernateJpaVendorAdapter" />
-        <property name="packagesToScan" value="com.kingdee.internet" />
-    </bean>
-
-    <jpa:repositories base-package="com.kingdee.internet" transaction-manager-ref="transactionManager"
-                      entity-manager-factory-ref="entityManagerFactory" />
-
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
-    </bean>
-
-    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
-
 </beans>

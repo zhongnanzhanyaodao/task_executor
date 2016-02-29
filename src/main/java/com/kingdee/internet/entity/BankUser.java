@@ -12,7 +12,6 @@ import java.util.List;
  */
 public class BankUser implements Serializable {
 	private static final long serialVersionUID = 6075789795670317252L;
-
 	private String id;
 	private String accountNum;
 	private String passwd;

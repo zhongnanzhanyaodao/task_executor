@@ -2,8 +2,8 @@ package com.kingdee.internet.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.kingdee.internet.entity.AbstractBankData;
-import com.kingdee.internet.repository.BankDataDao;
+import com.kingdee.internet.entity.TxnDetail;
+import com.kingdee.internet.repository.TxnDetailDao;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractBankService<DAO extends BankDataDao<T>,
-        T extends AbstractBankData> implements BankService {
+public abstract class AbstractBankService<DAO extends TxnDetailDao<T>,
+        T extends TxnDetail> implements BankService {
     private static final Logger logger = LoggerFactory.getLogger(AbstractBankService.class);
 
     protected DAO bankDataDao;
+
+    @Override
+    @Transactional(readOnly = true)
+    public String getStartDate(Map<String, String> params) {
+        return "20150301";
+    }
 
     @Override
     @Transactional(readOnly = false)

@@ -22,6 +22,6 @@ public class TaskService {
 
     @Transactional(readOnly = false)
     public void updateProgress(TaskProgress taskProgress) {
-        taskProgressDao.save(taskProgress);
+//        taskProgressDao.save(taskProgress);
     }
 }

@@ -6,7 +6,6 @@ import com.kingdee.internet.statemachine.Context;
 import com.kingdee.internet.statemachine.ContextListener;
 import com.kingdee.internet.statemachine.State;
 import com.kingdee.internet.statemachine.States;
-import com.kingdee.internet.util.ApplicationContextHolder;
 import com.kingdee.internet.util.ConfigUtils;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
@@ -19,7 +18,7 @@ import java.util.concurrent.Semaphore;
 public abstract class AbstractTaskRunner implements Runnable, Context {
     public static final Logger logger = LoggerFactory.getLogger(AbstractTaskRunner.class);
     protected final Task task;
-    protected final WebDriver webDriver = ApplicationContextHolder.getBean("ieWebDriver", WebDriver.class);
+    protected WebDriver webDriver;
     private State state;
 
     @Autowired
@@ -36,7 +35,8 @@ public abstract class AbstractTaskRunner implements Runnable, Context {
     @Autowired
     protected CaptchaRecognition captchaRecognition;
 
-    public AbstractTaskRunner(Task task) {
+    public AbstractTaskRunner(WebDriver webDriver, Task task) {
+        this.webDriver = webDriver;
         this.task = task;
         state(States.LOGIN);
     }

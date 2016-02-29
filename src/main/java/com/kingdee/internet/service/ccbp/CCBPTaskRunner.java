@@ -2,10 +2,10 @@ package com.kingdee.internet.service.ccbp;
 
 import com.kingdee.internet.entity.Task;
 import com.kingdee.internet.security.Encodes;
-import com.kingdee.internet.security.Exceptions;
 import com.kingdee.internet.service.AbstractTaskRunner;
+import com.kingdee.internet.util.ApplicationContextHolder;
+import com.kingdee.internet.util.CommonUtils;
 import org.apache.http.client.CookieStore;
-import org.apache.http.client.fluent.Executor;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
@@ -16,8 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -33,7 +31,7 @@ public class CCBPTaskRunner extends AbstractTaskRunner {
     private String url;
 
     public CCBPTaskRunner(Task task) {
-        super(task);
+        super(ApplicationContextHolder.getBean("chromeWebDriver", WebDriver.class), task);
     }
 
     @Override
@@ -73,12 +71,18 @@ public class CCBPTaskRunner extends AbstractTaskRunner {
 
     @Override
     public void fetchData() {
+        JavascriptExecutor jsExector = (JavascriptExecutor)webDriver;
+        jsExector.executeScript(CommonUtils.getClassPathFileContent("js/bridge.js"));
+        jsExector.executeScript("_X.setParams('" +
+                CommonUtils.map2urlParams(task.getParams().get("respData")) + "')");
+        jsExector.executeScript(CommonUtils.getClassPathFileContent("js/ccb-p.js"));
+
         Set<Cookie> cookies = webDriver.manage().getCookies();
         CookieStore cookieStore = new BasicCookieStore();
         for(Cookie cookie : cookies) {
             cookieStore.addCookie(new BasicClientCookie(cookie.getName(), cookie.getValue()));
         }
-        try {
+        /*try {
             Executor.newInstance()
                     .use(cookieStore)
                     .execute(Request.Get("url"))
@@ -86,7 +90,7 @@ public class CCBPTaskRunner extends AbstractTaskRunner {
         } catch (IOException e) {
             logger.error("failed to download file.");
             throw Exceptions.unchecked(e);
-        }
+        }*/
     }
 
     @Override

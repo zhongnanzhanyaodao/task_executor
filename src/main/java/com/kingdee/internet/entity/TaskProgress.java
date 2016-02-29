@@ -2,15 +2,9 @@ package com.kingdee.internet.entity;
 
 import com.kingdee.internet.util.IBuilder;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.Date;
 
-@Entity
-@Table(name = "T_BD_SYNC_PROGRESS")
 public class TaskProgress {
-    @Id
     private String taskId;
     private String progress;
     private Date currentDate;

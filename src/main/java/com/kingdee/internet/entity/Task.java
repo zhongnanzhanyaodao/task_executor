@@ -4,15 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import org.msgpack.annotation.Message;
 
-import javax.persistence.*;
 import java.util.Date;
 import java.util.Map;
 
-@Entity
-@Table(name = "T_BD_SYNC_TASK")
 @Message
 public class Task {
-    @Id
     private String taskId;
     private String userId;
     private String cardNum;
@@ -24,11 +20,7 @@ public class Task {
     private Date endDate;
     private String bankType;
     private String username;
-
-    @Column(name = "params")
     private String paramsStr;
-
-    @Transient
     private Map<String, Map<String, String>> params;
 
 

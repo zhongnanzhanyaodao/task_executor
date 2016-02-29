@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.Date;
 
 /**
  * <p>Title: CardBankUser</p>
@@ -31,7 +32,7 @@ public class CardBankUser implements Serializable {
     /**
      * 最后同步时间
      */
-    private Timestamp latestSyncTime;
+    private Date latestSyncTime;
 
     public BigDecimal balance1; // 余额扩展项1
 
@@ -50,7 +51,7 @@ public class CardBankUser implements Serializable {
         this.balance1 = builder.balance1;
     }
 
-    public Timestamp getLatestSyncTime() {
+    public Date getLatestSyncTime() {
         return latestSyncTime;
     }
 
