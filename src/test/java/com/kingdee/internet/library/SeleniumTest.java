@@ -27,7 +27,7 @@ public class SeleniumTest {
 
     @Before
     public void initWebDriver() {
-        System.setProperty("webdriver.chrome.driver", "/Volumes/Program/DevTools/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "D:/DevTools/selenium/chromedriver.exe");
         webDriver = new ChromeDriver();
     }
 
@@ -42,8 +42,8 @@ public class SeleniumTest {
 
         webDriver.get("https://ibsbjstar.ccb.com.cn/CCBIS/V6/STY1/CN/login.jsp");
         webDriver.switchTo().frame("fclogin");
-        webDriver.findElement(By.id("USERID")).sendKeys("*****");
-        webDriver.findElement(By.id("LOGPASS")).sendKeys("******");
+        webDriver.findElement(By.id("USERID")).sendKeys("kdpfx");
+        webDriver.findElement(By.id("LOGPASS")).sendKeys("pfx147258");
         webDriver.findElement(By.id("loginButton")).sendKeys(Keys.ENTER);
 
         JavascriptExecutor jsExector = (JavascriptExecutor)webDriver;
