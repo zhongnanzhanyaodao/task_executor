@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kingdee.internet.repository.UserCardPermissionDao">
+
+    <sql id="selectColumns">
+      a.ID AS "id",
+      a.CREATEBY AS "createBy",
+      a.USERID AS "userId",
+      a.ACCOUNTID AS "cardBankUser.id",
+      a.USERNAME AS "username",
+      a.REMARK AS "remark"
+    </sql>
+
+    <sql id="insertColumns">
+        ID, CREATEBY, USERID, ACCOUNTID, USERNAME, REMARK
+    </sql>
+    
+    <insert id="insert" parameterType="UserCardPermission">
+      INSERT INTO T_BD_USER_ACCOUNTNO (<include refid="insertColumns" />)
+      VALUES (
+        #{id},
+        #{createBy},
+        #{userId},
+        #{cardBankUser.id},
+        #{username},
+        #{remark}
+      )
+    </insert>
+
+    <select id="findAuthorisedCardPermission" parameterType="UserCardPermission" resultType="UserCardPermission">
+        SELECT
+          <include refid="selectColumns" />
+        FROM
+          T_BD_USER_ACCOUNTNO a
+        WHERE
+          a.USERID = #{userId}
+        AND
+          a.CREATEBY &lt;&gt; #{userId}
+        AND
+          a.ACCOUNTID = #{cardBankUser.id}
+    </select>
+
+    <delete id="delUserCardPermission" parameterType="UserCardPermission">
+        DELETE FROM
+          T_BD_USER_ACCOUNTNO a
+        WHERE
+          a.USERID = #{userId}
+        AND
+          a.ACCOUNTID = #{cardBankUser.id}
+    </delete>
+    
+    <delete id="delAllPermissionsIfNotExists" parameterType="map">
+        DELETE FROM
+          T_BD_USER_PERMISSION a
+        WHERE
+          a.CREATEBY = #{createBy}
+        AND
+          a.USERID = #{userId}
+        AND NOT EXISTS (
+          SELECT 1 FROM T_BD_USER_ACCOUNTNO b WHERE b.CREATEBY=a.CREATEBY AND b.USERID=a.USERID
+        )
+    </delete>
+
+    <delete id="delAllUserPerEnterpriseIfNotExists" parameterType="map">
+        DELETE FROM
+          T_BD_USER_PER_ENTERPRISE a
+        WHERE
+          a.CREATEBY = #{createBy}
+        AND
+          a.USERID = #{userId}
+        AND NOT EXISTS (
+          SELECT 1 FROM T_BD_USER_ACCOUNTNO b WHERE b.CREATEBY=a.CREATEBY AND b.USERID=a.USERID
+        )
+    </delete>
+
+</mapper>

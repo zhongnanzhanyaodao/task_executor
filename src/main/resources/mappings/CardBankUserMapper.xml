@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kingdee.internet.repository.CardBankUserDao" >
+
+    <sql id="insertColumns">
+        ID, BANKUSERID, ACCOUNTNO, BALANCE, ACCOUNTNAME, BANKTYPE, BANKNAME, LATESTSYNCTIME, BALANCE_1
+    </sql>
+
+    <sql id="selectColumns">
+        a.ID AS "id",
+        a.BANKUSERID AS "bankUserId",
+        a.ACCOUNTNO AS "accountNo",
+        a.BALANCE AS "balance",
+        a.ACCOUNTNAME AS "accountName",
+        a.BANKTYPE AS "bankType",
+        a.BANKNAME AS "bankName",
+        a.LATESTSYNCTIME AS "latestSyncTime",
+        a.BALANCE_1 AS "balance1"
+    </sql>
+
+    <update id="merge" parameterType="UserBankUser">
+        <selectKey keyProperty="id" resultType="string" order="AFTER"><!-- 返回数据库中主键ID值 -->
+          select id from T_BD_CARD_BANKUSER where BANKUSERID = #{bankUserId} and ACCOUNTNO = #{accountNo} and BANKTYPE=#{bankType}
+        </selectKey>
+        MERGE INTO T_BD_CARD_BANKUSER a USING DUAL ON (a.BANKUSERID = #{bankUserId} and a.ACCOUNTNO = #{accountNo} and a.BANKTYPE=#{bankType})
+        WHEN MATCHED THEN
+        UPDATE SET a.BALANCE=#{balance}, a.BALANCE_1=#{balance1}, latestsynctime=#{latestSyncTime}
+        WHEN NOT MATCHED THEN
+        INSERT(<include refid="insertColumns" />) VALUES (
+            #{id},
+            #{bankUserId},
+            #{accountNo},
+            #{balance},
+            #{accountName},
+            #{bankType},
+            #{bankName},
+            #{latestSyncTime},
+            #{balance1}
+        )
+    </update>
+    
+    <select id="queryCardsByBankUserId" parameterType="string" resultType="CardBankUser">
+        SELECT
+          <include refid="selectColumns" />
+        FROM
+          T_BD_CARD_BANKUSER a
+        WHERE
+          a.BANKUSERID = #{bankUserId}
+    </select>
+
+</mapper>

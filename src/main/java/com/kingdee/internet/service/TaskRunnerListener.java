@@ -20,15 +20,24 @@ public class TaskRunnerListener extends ContextListenerAdapter {
 
     @Override
     public void stateChanged(Context context) {
+        States currentState = (States)context.state();
         // update task progress
-        logger.debug("update task progress, current state is: {}", context.state());
+        logger.debug("update task progress, current state is: {}", currentState);
+        if(currentState == States.LOGIN) {
+            // TODO: 更改任务状态？
+        }
         TaskProgress taskProgress = buildProgress(context);
         taskService.updateProgress(taskProgress);
     }
 
+    /**
+     * 任务执行异常处理
+     * @param context
+     * @param e
+     */
     @Override
     public void onError(Context context, Throwable e) {
-        super.onError(context, e);
+        taskService.updateTaskStatus(context.getTaskId(), e.getMessage(), e.getMessage());
     }
 
     @Override

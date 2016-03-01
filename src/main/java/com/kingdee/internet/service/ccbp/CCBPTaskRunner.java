@@ -3,6 +3,7 @@ package com.kingdee.internet.service.ccbp;
 import com.kingdee.internet.entity.Task;
 import com.kingdee.internet.security.Encodes;
 import com.kingdee.internet.service.AbstractTaskRunner;
+import com.kingdee.internet.service.BankService;
 import com.kingdee.internet.util.ApplicationContextHolder;
 import com.kingdee.internet.util.CommonUtils;
 import org.apache.http.client.CookieStore;
@@ -10,10 +11,10 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.BasicClientCookie;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,12 @@ public class CCBPTaskRunner extends AbstractTaskRunner {
 
     @Value("${ccbp.login.url}")
     private String url;
+
+    @Autowired
+    @Qualifier("ccbpBankService")
+    private BankService ccbpBankService;
+
+    private String bankDataJson;
 
     public CCBPTaskRunner(Task task) {
         super(ApplicationContextHolder.getBean("chromeWebDriver", WebDriver.class), task);
@@ -75,38 +82,28 @@ public class CCBPTaskRunner extends AbstractTaskRunner {
 
     @Override
     public void fetchData() {
-        JavascriptExecutor jsExector = (JavascriptExecutor)webDriver;
-        jsExector.executeScript(CommonUtils.getClassPathFileContent("js/bridge.js"));
-        jsExector.executeScript("_X.setParams('" +
+        JavascriptExecutor jsExecutor = (JavascriptExecutor)webDriver;
+        jsExecutor.executeScript(CommonUtils.getClassPathFileContent("js/bridge.js"));
+        jsExecutor.executeScript("_X.setParams('" +
                 CommonUtils.map2urlParams(task.getParams().get("respData")) + "')");
-        jsExector.executeScript(CommonUtils.getClassPathFileContent("js/ccb-p.js"));
+        webDriver.manage().timeouts().setScriptTimeout(20, TimeUnit.SECONDS); // 设置超时
+        bankDataJson = (String) jsExecutor.executeAsyncScript(
+                "var callbackJava = arguments[arguments.length - 1];\n"
+                + CommonUtils.getClassPathFileContent("js/ccb-p.js")
+        ); // 执行异步JavaScript
+        updateProgress(0.5d); // 更新进度为50%
 
-        By frameSearch = By.xpath("//iframe[starts-with(@src,'about:blank?id=')]");
-        WebDriverWait wait = new WebDriverWait(webDriver, 20);
-        wait.until(ExpectedConditions.presenceOfElementLocated(frameSearch));
-
+        // 获取浏览器 Cookie
         Set<Cookie> cookies = webDriver.manage().getCookies();
         CookieStore cookieStore = new BasicCookieStore();
         for(Cookie cookie : cookies) {
             cookieStore.addCookie(new BasicClientCookie(cookie.getName(), cookie.getValue()));
         }
-        /*try {
-            Executor.newInstance()
-                    .use(cookieStore)
-                    .execute(Request.Get("url"))
-                    .saveContent(new File("path"));
-        } catch (IOException e) {
-            logger.error("failed to download file.");
-            throw Exceptions.unchecked(e);
-        }*/
+        extra.put("cookieStore", cookieStore);
     }
 
     @Override
     public void saveData() {
-        try {
-            TimeUnit.MINUTES.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        ccbpBankService.saveBankData(bankDataJson, this);
     }
 }

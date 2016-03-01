@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kingdee.internet.repository.UserBankUserDao" >
+
+    <sql id="insertColumns">
+        ID, USERID, BANKUSERID, CREATEDATE, UPDATEDATE, ISVALIDITY, BANKUSERPASSWD
+    </sql>
+
+    <update id="merge" parameterType="UserBankUser">
+        <selectKey keyProperty="id" resultType="string" order="AFTER"><!-- 返回数据库中主键ID值 -->
+          select id from T_BD_USER_BANKUSER where USERID = #{userId} and BANKUSERID = #{bankUserId}
+        </selectKey>
+        MERGE INTO T_BD_USER_BANKUSER a USING DUAL ON (a.USERID = #{userId} and a.BANKUSERID = #{bankUserId})
+        WHEN MATCHED THEN
+        UPDATE SET a.UPDATEDATE=#{updateDate}, a.BANKUSERPASSWD=#{bankUserPasswd}
+        WHEN NOT MATCHED THEN
+        INSERT(<include refid="insertColumns" />) VALUES (
+            #{id},
+            #{userId},
+            #{bankUserId},
+            #{updateDate},
+            #{createDate},
+            #{isValidity},
+            #{bankUserPasswd}
+        )
+    </update>
+
+</mapper>

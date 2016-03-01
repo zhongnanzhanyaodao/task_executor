@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.kingdee.internet.repository.BankUserDao" >
+
+    <sql id="insertColumns">
+        ID, ACCOUNTNUM, PASSWD, USERNAME, CUSTOMERNUM, EXTENSIONF1, EXTENSIONF2, EXTENSIONF3, ISAUTHORIZATION, ISUPDATEDDAILY, ISVALIDITY, BANKTYPE, CREATEDATE, UPDATEDATE, BANKNAME
+    </sql>
+    
+    <resultMap id="bankUserMap" type="BankUser">
+        <id column="ID" property="id" jdbcType="VARCHAR" />
+        <result column="ACCOUNTNUM" property="accountNum" jdbcType="VARCHAR" />
+        <result column="PASSWD" property="passwd" jdbcType="VARCHAR" />
+        <result column="USERNAME" property="userName" jdbcType="VARCHAR" />
+        <result column="CUSTOMERNUM" property="customerNum" jdbcType="VARCHAR" />
+        <result column="EXTENSIONF1" property="extensionF1" jdbcType="VARCHAR" />
+        <result column="EXTENSIONF2" property="extensionF2" jdbcType="VARCHAR" />
+        <result column="EXTENSIONF3" property="extensionF3" jdbcType="VARCHAR" />
+        <result column="ISAUTHORIZATION" property="isAuthorization" jdbcType="VARCHAR" />
+        <result column="ISUPDATEDDAILY" property="isUpdatedDaily" jdbcType="VARCHAR" />
+        <result column="ISVALIDITY" property="isValidity" jdbcType="VARCHAR" />
+        <result column="BANKTYPE" property="bankType" jdbcType="VARCHAR" />
+        <result column="CREATEDATE" property="createDate" jdbcType="DATE" />
+        <result column="UPDATEDATE" property="updateDate" jdbcType="DATE" />
+        <result column="BANKNAME" property="bankName" jdbcType="VARCHAR" />
+        <collection property="bankAccounts" ofType="CardBankUser" javaType="java.util.List" column="id" select="com.kingdee.internet.syncbank.dao.CardBankUserDao.queryCardsByBankUserId" />
+    </resultMap>
+    
+    <select id="findByAccountNumAndBankType" resultMap="bankUserMap" parameterType="BankUser">
+      SELECT * FROM T_BD_BANKUSER a WHERE ACCOUNTNUM = #{accountNum} AND BANKTYPE = #{bankType}
+    </select>
+
+    <insert id="insert" parameterType="BankUser">
+      INSERT INTO
+        T_BD_BANKUSER(<include refid="insertColumns" />)
+      VALUES (
+        #{id},
+        #{accountNum},
+        #{passwd},
+        #{userName},
+        #{customerNum},
+        #{extensionF1},
+        #{extensionF2},
+        #{extensionF3},
+        #{isAuthorization},
+        #{isUpdatedDaily},
+        #{isValidity},
+        #{bankType},
+        #{createDate},
+        #{updateDate},
+        #{bankName}
+      )
+    </insert>
+
+    <update id="merge" parameterType="BankUser">
+        <selectKey keyProperty="id" resultType="string" order="AFTER"><!-- 返回数据库中主键ID值 -->
+          select id from T_BD_BANKUSER where ACCOUNTNUM = #{accountNum} and BANKTYPE = #{bankType}
+        </selectKey>
+        MERGE INTO T_BD_BANKUSER a USING DUAL ON (a.ACCOUNTNUM = #{accountNum} and a.BANKTYPE = #{bankType})
+        WHEN MATCHED THEN
+        UPDATE SET a.UPDATEDATE=#{updateDate}, a.PASSWD=#{passwd}
+        WHEN NOT MATCHED THEN
+        INSERT(<include refid="insertColumns" />) VALUES (
+            #{id},
+            #{accountNum},
+            #{passwd},
+            #{userName},
+            #{customerNum},
+            #{extensionF1},
+            #{extensionF2},
+            #{extensionF3},
+            #{isAuthorization},
+            #{isUpdatedDaily},
+            #{isValidity},
+            #{bankType},
+            #{createDate},
+            #{updateDate},
+            #{bankName}
+        )
+    </update>
+
+</mapper>

@@ -1,5 +1,7 @@
 package com.kingdee.internet.service;
 
+import com.kingdee.internet.statemachine.Context;
+
 import java.util.Map;
 
 public interface BankService {
@@ -15,5 +17,5 @@ public interface BankService {
      * @param bankDataJson
      * @return
      */
-    int saveBankData(String bankDataJson);
+    int saveBankData(String bankDataJson, Context context);
 }

@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ConfigUtils {
+    public static final String FLAG_C = "贷";
+    public static final String FLAG_D = "借";
+
     @Value("${aes.key}")
     private String aesKey;
 

@@ -22,6 +22,11 @@ public class TaskService {
 
     @Transactional(readOnly = false)
     public void updateProgress(TaskProgress taskProgress) {
-//        taskProgressDao.save(taskProgress);
+        taskProgressDao.insert(taskProgress);
+    }
+
+    @Transactional(readOnly = false)
+    public void updateTaskStatus(String taskId, String errCode, String errMsg) {
+        taskDao.upateStatus(taskId, errCode, errMsg, null);
     }
 }

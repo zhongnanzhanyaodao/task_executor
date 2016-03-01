@@ -1,11 +1,14 @@
 package com.kingdee.internet.service;
 
+import com.google.common.collect.Maps;
 import com.kingdee.internet.captcha.CaptchaRecognition;
 import com.kingdee.internet.entity.Task;
+import com.kingdee.internet.repository.TaskDao;
 import com.kingdee.internet.statemachine.Context;
 import com.kingdee.internet.statemachine.ContextListener;
 import com.kingdee.internet.statemachine.State;
 import com.kingdee.internet.statemachine.States;
+import com.kingdee.internet.util.ApplicationContextHolder;
 import com.kingdee.internet.util.ConfigUtils;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
@@ -13,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 public abstract class AbstractTaskRunner implements Runnable, Context {
@@ -20,6 +25,7 @@ public abstract class AbstractTaskRunner implements Runnable, Context {
     protected final Task task;
     protected WebDriver webDriver;
     private State state;
+    protected Map<String, Object> extra = Maps.newHashMap();
 
     @Autowired
     @Qualifier("taskRunnerListener")
@@ -53,6 +59,9 @@ public abstract class AbstractTaskRunner implements Runnable, Context {
         } finally {
             webDriver.quit(); // quit web driver
             taskSemaphore.release();
+            // 更新状态为已完成
+            ApplicationContextHolder.getBean(TaskDao.class)
+                    .updateTaskCompleteDate(getTaskId(), new Date());
         }
     }
 
@@ -83,5 +92,10 @@ public abstract class AbstractTaskRunner implements Runnable, Context {
     @Override
     public String getTaskId() {
         return task.getTaskId();
+    }
+
+    @Override
+    public Map<String, Object> extra() {
+        return extra;
     }
 }

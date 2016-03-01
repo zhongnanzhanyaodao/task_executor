@@ -3,8 +3,6 @@
  * @author Jony Zhang
  * @required bridge.js
  */
-var callbackJava = arguments[arguments.length - 1];
-
 (function(){
     var _X = top._X || {};
     var mainFrame = $('iframe[src*="TXCODE=N31010"]').get(0);
